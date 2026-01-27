@@ -385,6 +385,8 @@ input:checked+.toggle-btn {
     /* Slightly reduce side padding to prevent cut off */
     border-bottom: 1px solid #F1F3F5;
     gap: 10px;
+    overflow: visible;
+    /* Ensure delete button is not clipped */
 }
 
 .item-info {
@@ -392,13 +394,16 @@ input:checked+.toggle-btn {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-width: 0;
+    /* Allow flex item to shrink below content size */
+    overflow: hidden;
+    /* Prevent overflow */
 }
 
-.item-left strong {
-    display: block;
-    font-size: 1rem;
-    overflow-wrap: break-word;
-    /* Prevent long text overflow */
+.item-left {
+    flex: 1;
+    min-width: 0;
+    /* Allow text to wrap/truncate */
 }
 
 /* Delete Button */

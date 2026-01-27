@@ -24,6 +24,7 @@ const GUIDELINES = {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('App Loaded v3 - With Delete Buttons');
     loadData();
     setupNavigation();
     setupForms();
@@ -295,11 +296,16 @@ function renderLists() {
         const li = document.createElement('li');
         li.className = 'list-item';
         li.innerHTML = `
-            <div class="item-left">
-                <strong>${m.name}</strong>
-                <small>${translateMeal(m.meal)}</small>
+            <div class="item-info">
+                <div class="item-left">
+                    <strong>${m.name}</strong>
+                    <small>${translateMeal(m.meal)}</small>
+                </div>
+                <span class="item-right">${m.cals} kcal</span>
             </div>
-            <span class="item-right">${m.cals} kcal</span>
+            <button class="btn-delete" onclick="deleteFood(${m.id})" aria-label="刪除">
+                <span class="material-icons-round" style="font-size: 18px;">delete</span>
+            </button>
         `;
         fList.appendChild(li);
     });
@@ -307,6 +313,14 @@ function renderLists() {
     const total = todayMeals.reduce((a, b) => a + b.cals, 0);
     document.getElementById('food-list-total').textContent = total;
 }
+
+window.deleteFood = (id) => {
+    if (confirm('確定要刪除這筆紀錄嗎？')) {
+        state.meals = state.meals.filter(m => m.id !== id);
+        saveData();
+        renderAll();
+    }
+};
 
 function translateMeal(m) {
     const map = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '點心' };

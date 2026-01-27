@@ -80,12 +80,31 @@ function saveData() {
 }
 
 function setupNavigation() {
-    // Add click listeners to nav items
+    // Add click listeners to ALL nav items (sidebar + mobile bottom nav)
     const navItems = document.querySelectorAll('.nav-item');
+
     navItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const sectionId = item.dataset.section;
-            showSection(sectionId);
+        // Remove any existing listeners to avoid duplicates
+        const newItem = item.cloneNode(true);
+        item.parentNode.replaceChild(newItem, item);
+
+        // Add click event
+        newItem.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const sectionId = newItem.dataset.section;
+            if (sectionId) {
+                showSection(sectionId);
+            }
+        });
+
+        // Add touch event for mobile (more responsive)
+        newItem.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const sectionId = newItem.dataset.section;
+            if (sectionId) {
+                showSection(sectionId);
+            }
         });
     });
 
@@ -100,14 +119,13 @@ function setupNavigation() {
             target.classList.add('active-section');
         }
 
-        // Update Nav State
+        // Update Nav State for ALL nav items (both sidebar and mobile)
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
 
-        // Find the nav item with matching data-section
-        const activeNav = document.querySelector(`.nav-item[data-section="${id}"]`);
-        if (activeNav) {
-            activeNav.classList.add('active');
-        }
+        // Find all nav items with matching data-section and activate them
+        document.querySelectorAll(`.nav-item[data-section="${id}"]`).forEach(nav => {
+            nav.classList.add('active');
+        });
 
         if (id === 'dashboard') renderChart();
     };

@@ -339,10 +339,6 @@ function renderChart() {
     // 14-40 weeks: steady gain
     // We plot points every week from 0 to 40
 
-    const labels = [];
-    const minData = [];
-    const maxData = [];
-
     // Guideline params
     const h = state.profile.height / 100;
     const bmi = state.profile.startWeight / (h * h);

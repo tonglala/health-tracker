@@ -528,4 +528,14 @@ input:checked+.toggle-btn {
     .history-list {
         max-height: 300px;
     }
+
+    /* Chart optimization for mobile */
+    #weightChart {
+        max-height: 350px !important;
+    }
+
+    .card {
+        padding: 1rem;
+        /* Reduce padding on mobile */
+    }
 }

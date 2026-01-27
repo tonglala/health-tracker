@@ -416,17 +416,59 @@ function renderChart() {
         },
         options: {
             responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: window.innerWidth < 768 ? 1.2 : 2, // Taller on mobile
             scales: {
                 x: {
                     type: 'time',
-                    time: { unit: 'week' },
-                    title: { display: true, text: '日期' }
+                    time: {
+                        unit: 'week',
+                        displayFormats: {
+                            week: window.innerWidth < 768 ? 'M/d' : 'MMM d' // Shorter format on mobile
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: '日期',
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        }
+                    },
+                    ticks: {
+                        maxRotation: window.innerWidth < 768 ? 45 : 0, // Rotate labels on mobile
+                        minRotation: window.innerWidth < 768 ? 45 : 0,
+                        font: {
+                            size: window.innerWidth < 768 ? 9 : 11
+                        },
+                        maxTicksLimit: window.innerWidth < 768 ? 8 : 15 // Fewer ticks on mobile
+                    }
                 },
                 y: {
-                    title: { display: true, text: '體重 (kg)' }
+                    title: {
+                        display: true,
+                        text: '體重 (kg)',
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        }
+                    },
+                    ticks: {
+                        font: {
+                            size: window.innerWidth < 768 ? 9 : 11
+                        }
+                    }
                 }
             },
             plugins: {
+                legend: {
+                    display: window.innerWidth >= 768, // Hide legend on mobile
+                    labels: {
+                        font: {
+                            size: window.innerWidth < 768 ? 10 : 12
+                        },
+                        usePointStyle: true,
+                        padding: window.innerWidth < 768 ? 10 : 15
+                    }
+                },
                 tooltip: {
                     callbacks: {
                         afterBody: (items) => {
@@ -435,6 +477,12 @@ function renderChart() {
                             const w = getWeeksPregnant(date);
                             return `懷孕週數: ${w} 週`;
                         }
+                    },
+                    titleFont: {
+                        size: window.innerWidth < 768 ? 11 : 13
+                    },
+                    bodyFont: {
+                        size: window.innerWidth < 768 ? 10 : 12
                     }
                 }
             }

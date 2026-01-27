@@ -432,6 +432,8 @@ function renderChart() {
             scales: {
                 x: {
                     type: 'time',
+                    min: state.profile.lmpDate, // Start from LMP date
+                    max: new Date(new Date(state.profile.lmpDate).getTime() + 40 * 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // End at 40 weeks
                     time: {
                         unit: 'week',
                         parser: 'yyyy-MM-dd', // Explicit date format

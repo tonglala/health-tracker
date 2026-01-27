@@ -434,9 +434,11 @@ function renderChart() {
                     type: 'time',
                     time: {
                         unit: 'week',
+                        parser: 'yyyy-MM-dd', // Explicit date format
                         displayFormats: {
                             week: window.innerWidth < 768 ? 'M/d' : 'MMM d' // Shorter format on mobile
-                        }
+                        },
+                        tooltipFormat: 'yyyy-MM-dd'
                     },
                     title: {
                         display: true,

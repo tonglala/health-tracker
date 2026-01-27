@@ -349,52 +349,86 @@ input:checked+.toggle-btn {
 }
 
 /* Lists */
+/* Lists */
 .list-group {
     list-style: none;
     max-height: 400px;
     overflow-y: auto;
-    background: var(--card-bg);
-    /* Ensure white background */
+    background: transparent;
     padding: 0;
     margin: 0;
+    /* Custom Scrollbar for visibility */
+    scrollbar-width: thin;
+    /* Firefox */
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Chrome/Safari Scrollbar */
+.list-group::-webkit-scrollbar {
+    width: 6px;
+}
+
+.list-group::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.list-group::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
 }
 
 .list-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
+    padding: 12px 6px;
+    /* Slightly reduce side padding to prevent cut off */
     border-bottom: 1px solid #F1F3F5;
+    gap: 10px;
 }
 
-.list-item:last-child {
-    border: none;
+.item-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .item-left strong {
     display: block;
     font-size: 1rem;
+    overflow-wrap: break-word;
+    /* Prevent long text overflow */
 }
 
-.item-left small {
-    color: var(--text-muted);
+/* Delete Button */
+.btn-delete {
+    background: #FFF5F5;
+    border: none;
+    color: #FA5252;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
 }
 
-.item-right {
-    font-weight: 700;
-    color: var(--primary-color);
+.btn-delete:hover {
+    background: #FF8787;
+    color: white;
 }
 
-.tag {
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-left: 6px;
-}
-
-.tag.home {
-    background: #E7F5FF;
-    color: #1971C2;
+/* Input Fix */
+/* Input Fix */
+input[type="date"] {
+    max-width: 100%;
+    /* Ensure padding doesn't force overflow on small screens */
+    box-sizing: border-box;
+    appearance: none;
+    /* Fix iOS styling */
 }
 
 .tag.clinic {

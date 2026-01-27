@@ -353,12 +353,14 @@ function renderChart() {
 
     // Generate ideal line data
     const lmp = new Date(state.profile.lmpDate);
+    const minDataPoints = [];
+    const maxDataPoints = [];
 
     for (let w = 0; w <= 40; w++) {
         // Date for this week
         const d = new Date(lmp);
         d.setDate(lmp.getDate() + w * 7);
-        labels.push(d.toISOString().split('T')[0]); // X-axis label
+        const dateStr = d.toISOString().split('T')[0];
 
         // Calculate ideal weight range
         let minGain = 0;
@@ -374,8 +376,8 @@ function renderChart() {
             maxGain = firstTriMax + (w - 13) * rangeWeek[1];
         }
 
-        minData.push(state.profile.startWeight + minGain);
-        maxData.push(state.profile.startWeight + maxGain);
+        minDataPoints.push({ x: dateStr, y: state.profile.startWeight + minGain });
+        maxDataPoints.push({ x: dateStr, y: state.profile.startWeight + maxGain });
     }
 
     // Process User Data for Chart
@@ -386,11 +388,10 @@ function renderChart() {
     chartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: labels, // 40 weeks dates
             datasets: [
                 {
                     label: '建議上限',
-                    data: maxData,
+                    data: maxDataPoints,
                     borderColor: 'rgba(75, 192, 192, 0.2)',
                     backgroundColor: 'rgba(75, 192, 192, 0.1)',
                     borderWidth: 1,
@@ -399,7 +400,7 @@ function renderChart() {
                 },
                 {
                     label: '建議下限',
-                    data: minData,
+                    data: minDataPoints,
                     borderColor: 'rgba(75, 192, 192, 0.2)',
                     backgroundColor: 'transparent',
                     borderWidth: 1,

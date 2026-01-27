@@ -572,6 +572,10 @@ input[type="date"] {
     /* Fix table/list scrolling if needed */
     .history-list {
         max-height: 300px;
+        overflow-y: auto;
+        /* Enable scrolling */
+        -webkit-overflow-scrolling: touch;
+        /* Smooth scrolling on iOS */
     }
 
     /* Chart optimization for mobile */

@@ -186,7 +186,22 @@ function setupForms() {
         e.preventDefault();
         state.profile.height = parseFloat(document.getElementById('profile-height').value);
         state.profile.startWeight = parseFloat(document.getElementById('profile-start-weight').value);
-        state.profile.lmpDate = document.getElementById('profile-date-point').value;
+
+        // Check if user selected LMP or Due Date
+        const dateMethod = document.getElementById('date-method').value;
+        const dateInput = document.getElementById('profile-date-point').value;
+
+        if (dateMethod === 'due') {
+            // User entered due date, need to calculate LMP (due date - 280 days)
+            const dueDate = new Date(dateInput);
+            const lmpDate = new Date(dueDate);
+            lmpDate.setDate(dueDate.getDate() - 280); // 40 weeks = 280 days
+            state.profile.lmpDate = lmpDate.toISOString().split('T')[0];
+        } else {
+            // User entered LMP directly
+            state.profile.lmpDate = dateInput;
+        }
+
         saveData();
         alert('設定已更新');
     });
@@ -194,6 +209,18 @@ function setupForms() {
     // Set default dates
     document.getElementById('weight-date').valueAsDate = new Date();
     document.getElementById('food-date').valueAsDate = new Date();
+}
+
+// Toggle date input hint based on method selection
+window.toggleDateInput = () => {
+    const method = document.getElementById('date-method').value;
+    const hint = document.getElementById('date-hint');
+
+    if (method === 'due') {
+        hint.textContent = '輸入預產期,系統會自動倒推計算最後一次月經日期 (預產期 - 280 天)';
+    } else {
+        hint.textContent = '若妳知道1/30滿20週,建議直接輸入該推算出的 LMP。';
+    }
 }
 
 function setupCalculations() {

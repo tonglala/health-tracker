@@ -351,6 +351,10 @@ input:checked+.toggle-btn {
     list-style: none;
     max-height: 400px;
     overflow-y: auto;
+    background: var(--card-bg);
+    /* Ensure white background */
+    padding: 0;
+    margin: 0;
 }
 
 .list-item {

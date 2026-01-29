@@ -15,10 +15,68 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script
         src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <!-- Firebase Compat SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <link rel="stylesheet" href="style.css?v=3">
+    <style>
+        #debug-console {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #ff4444;
+            z-index: 9999;
+            overflow-y: scroll;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            pointer-events: none;
+            /* Let clicks pass through if needed, but here we want to see it */
+            pointer-events: auto;
+        }
+
+        #debug-console.visible {
+            display: block;
+        }
+    </style>
+    <script>
+        // Global Error Handler
+        window.onerror = function (msg, url, lineNo, columnNo, error) {
+            const consoleDiv = document.getElementById('debug-console');
+            if (consoleDiv) {
+                consoleDiv.className = 'visible';
+                const div = document.createElement('div');
+                div.innerText = `[ERROR] ${msg} \nLine: ${lineNo} \n${url}`;
+                div.style.borderBottom = "1px solid #333";
+                div.style.padding = "4px 0";
+                consoleDiv.appendChild(div);
+            }
+            return false;
+        };
+
+        window.addEventListener('unhandledrejection', function (event) {
+            const consoleDiv = document.getElementById('debug-console');
+            if (consoleDiv) {
+                consoleDiv.className = 'visible';
+                const div = document.createElement('div');
+                div.innerText = `[PROMISE] ${event.reason}`;
+                div.style.borderBottom = "1px solid #333";
+                div.style.padding = "4px 0";
+                consoleDiv.appendChild(div);
+            }
+        });
+    </script>
 </head>
 
 <body>
+    <div id="debug-console"><strong>Debug Console (將在錯誤發生時顯示)</strong><br></div>
     <div class="app-container">
         <!-- Sidebar Navigation (Desktop) -->
         <nav class="sidebar">
@@ -278,7 +336,7 @@
             </div>
         </nav>
     </div>
-    <script type="module" src="app.js?v=4"></script>
+    <script src="app.js?v=5"></script>
 </body>
 
 </html>

@@ -1,3 +1,28 @@
+// --- Firebase Configuration (Compat) ---
+const firebaseConfig = {
+    apiKey: "AIzaSyDKrYOLnjPhf7axdoI95php_JVCkgp3IW8",
+    authDomain: "healthy-tracker-8740c.firebaseapp.com",
+    projectId: "healthy-tracker-8740c",
+    storageBucket: "healthy-tracker-8740c.firebasestorage.app",
+    messagingSenderId: "78591275759",
+    appId: "1:78591275759:web:d9b7e6221bd7235a31211a"
+};
+
+// Initialize Firebase (Compat)
+// Initialize Firebase (Compat)
+try {
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
+    var provider = new firebase.auth.GoogleAuthProvider();
+    console.log("Firebase initialized successfully");
+} catch (e) {
+    console.error("Firebase Init Error:", e);
+    alert("Firebase 初始化失敗 (可能是網路問題): " + e.message);
+}
+
+let currentUser = null; // Global User State
+
 // State Management
 const STORAGE_KEY = 'pregnancy_tracker_data';
 let state = {
@@ -44,7 +69,7 @@ function setupAuthListeners() {
 
     // Login
     btnLogin.addEventListener('click', () => {
-        signInWithPopup(auth, provider)
+        auth.signInWithPopup(provider)
             .catch((error) => {
                 console.error("Login failed", error);
                 alert("登入失敗: " + error.message);
@@ -53,14 +78,14 @@ function setupAuthListeners() {
 
     // Logout
     btnLogout.addEventListener('click', () => {
-        signOut(auth).then(() => {
+        auth.signOut().then(() => {
             alert("已登出");
             location.reload(); // Reload to clear state
         });
     });
 
     // Auth State Change
-    onAuthStateChanged(auth, async (user) => {
+    auth.onAuthStateChanged(async (user) => {
         if (user) {
             // User is signed in
             currentUser = user;
@@ -94,12 +119,13 @@ function updateAuthUI(user) {
 async function syncData() {
     if (!currentUser) return;
 
-    const userDocRef = doc(db, "users", currentUser.uid);
+    // Compatible Firestore Reference
+    const userDocRef = db.collection("users").doc(currentUser.uid);
 
     try {
-        const docSnap = await getDoc(userDocRef);
+        const docSnap = await userDocRef.get();
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
             // Cloud data exists -> Pull from Cloud
             console.log("Found cloud data, downloading...");
             state = docSnap.data();
@@ -112,11 +138,11 @@ async function syncData() {
             const localData = localStorage.getItem(STORAGE_KEY);
             if (localData) {
                 // Upload local data to cloud
-                await setDoc(userDocRef, JSON.parse(localData));
+                await userDocRef.set(JSON.parse(localData));
                 alert("您的本地資料已成功備份到雲端！");
             } else {
                 // New user completely
-                await setDoc(userDocRef, state);
+                await userDocRef.set(state);
             }
         }
     } catch (e) {
@@ -132,14 +158,15 @@ function loadLocalData() {
         state = JSON.parse(saved);
     } else {
         // Initial Defaults Logic based on user request
-        // User says: Jan 30 is 20 weeks.
-        // Today is Jan 27.
-        // Jan 30 2026 is Day X.
-        // LMP = Jan 30 2026 - 140 days (20 weeks)
         const targetDate = new Date('2026-01-30');
         const lmp = new Date(targetDate);
         lmp.setDate(targetDate.getDate() - 140);
 
+        if (isNaN(lmp.getTime())) {
+            // Fallback if invalid
+            lmp = new Date();
+            lmp.setDate(lmp.getDate() - 140);
+        }
         state.profile.lmpDate = lmp.toISOString().split('T')[0];
 
         // Add initial weight data point
@@ -179,7 +206,7 @@ async function saveData() {
     // 2. Save to Cloud (Async)
     if (currentUser) {
         try {
-            await setDoc(doc(db, "users", currentUser.uid), state);
+            await db.collection("users").doc(currentUser.uid).set(state);
             console.log("Cloud save success");
         } catch (e) {
             console.error("Cloud save failed", e);
@@ -523,7 +550,12 @@ function renderChart() {
 
     for (let w = 0; w <= 40; w++) {
         // Date for this week
+        // Date for this week
         const d = new Date(lmp);
+        if (isNaN(d.getTime())) {
+            console.error("Invalid LMP date for chart");
+            continue;
+        }
         d.setDate(lmp.getDate() + w * 7);
         const dateStr = d.toISOString().split('T')[0];
 
@@ -696,8 +728,18 @@ window.resetAllData = () => {
     if (confirm('確定要刪除所有紀錄並重置嗎？')) {
         localStorage.removeItem(STORAGE_KEY);
         if (currentUser) {
-            setDoc(doc(db, "users", currentUser.uid), {}); // Clear cloud data too
+            // Corrected syntax for Compat SDK
+            db.collection("users").doc(currentUser.uid).set({})
+                .then(() => {
+                    console.log("Cloud data cleared");
+                    location.reload();
+                })
+                .catch((e) => {
+                    console.error("Error clearing cloud data", e);
+                    alert("清除雲端資料失敗");
+                });
+        } else {
+            location.reload();
         }
-        location.reload();
     }
 }

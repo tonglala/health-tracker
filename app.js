@@ -67,22 +67,42 @@ function setupAuthListeners() {
     const btnLogin = document.getElementById('btn-login');
     const btnLogout = document.getElementById('btn-logout');
 
-    // Login
-    btnLogin.addEventListener('click', () => {
+    // Login (Desktop & Mobile)
+    const handleLogin = () => {
         auth.signInWithPopup(provider)
             .catch((error) => {
                 console.error("Login failed", error);
                 alert("登入失敗: " + error.message);
             });
-    });
+    };
+    if (btnLogin) btnLogin.addEventListener('click', handleLogin);
+    const btnMobileLogin = document.getElementById('btn-mobile-login');
+    if (btnMobileLogin) btnMobileLogin.addEventListener('click', handleLogin);
 
-    // Logout
-    btnLogout.addEventListener('click', () => {
+    // New Header Login Button
+    const btnHeaderLogin = document.getElementById('btn-header-login');
+    if (btnHeaderLogin) btnHeaderLogin.addEventListener('click', handleLogin);
+
+    // Logout (Desktop & Mobile)
+    const handleLogout = () => {
         auth.signOut().then(() => {
             alert("已登出");
             location.reload(); // Reload to clear state
         });
-    });
+    };
+    if (btnLogout) btnLogout.addEventListener('click', handleLogout);
+    const btnMobileLogout = document.getElementById('btn-mobile-logout');
+    if (btnMobileLogout) btnMobileLogout.addEventListener('click', handleLogout);
+
+    // Header Avatar Click -> Logout (Simple for now)
+    const headerUserInfo = document.getElementById('header-user-info');
+    if (headerUserInfo) {
+        headerUserInfo.addEventListener('click', () => {
+            if (confirm('要登出嗎？')) {
+                handleLogout();
+            }
+        });
+    }
 
     // Auth State Change
     auth.onAuthStateChanged(async (user) => {
@@ -105,14 +125,47 @@ function updateAuthUI(user) {
     const userPhoto = document.getElementById('user-photo');
     const userName = document.getElementById('user-name');
 
+    // Mobile Elements
+    const mobileLoginBtn = document.getElementById('btn-mobile-login');
+    const mobileUserInfo = document.getElementById('mobile-user-info');
+    const mobileUserPhoto = document.getElementById('mobile-user-photo');
+    const mobileUserName = document.getElementById('mobile-user-name');
+
+    // Header Elements
+    const headerLoginBtn = document.getElementById('btn-header-login');
+    const headerUserInfo = document.getElementById('header-user-info');
+    const headerUserPhoto = document.getElementById('header-user-photo');
+
     if (user) {
-        loginBtn.style.display = 'none';
-        userInfo.style.display = 'flex';
-        userPhoto.src = user.photoURL;
-        userName.textContent = user.displayName;
+        // Desktop Sidebar
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userInfo) userInfo.style.display = 'flex';
+        if (userPhoto) userPhoto.src = user.photoURL;
+        if (userName) userName.textContent = user.displayName;
+
+        // Mobile Settings
+        if (mobileLoginBtn) mobileLoginBtn.style.display = 'none';
+        if (mobileUserInfo) mobileUserInfo.style.display = 'block';
+        if (mobileUserPhoto) mobileUserPhoto.src = user.photoURL;
+        if (mobileUserName) mobileUserName.textContent = user.displayName;
+
+        // Header (Mobile Visible)
+        if (headerLoginBtn) headerLoginBtn.style.display = 'none';
+        if (headerUserInfo) headerUserInfo.style.display = 'block';
+        if (headerUserPhoto) headerUserPhoto.src = user.photoURL;
+
     } else {
-        loginBtn.style.display = 'flex';
-        userInfo.style.display = 'none';
+        // Desktop Sidebar
+        if (loginBtn) loginBtn.style.display = 'flex';
+        if (userInfo) userInfo.style.display = 'none';
+
+        // Mobile Settings
+        if (mobileLoginBtn) mobileLoginBtn.style.display = 'flex';
+        if (mobileUserInfo) mobileUserInfo.style.display = 'none';
+
+        // Header (Mobile Visible)
+        if (headerLoginBtn) headerLoginBtn.style.display = 'flex';
+        if (headerUserInfo) headerUserInfo.style.display = 'none';
     }
 }
 
@@ -272,7 +325,7 @@ function setupForms() {
         e.preventDefault();
         const weight = parseFloat(document.getElementById('weight-value').value);
         const date = document.getElementById('weight-date').value;
-        const type = document.querySelector('input[name="w-type"]:checked').value;
+        const type = document.querySelector('input[name="weight-type"]:checked').value;
         const note = document.getElementById('weight-note').value;
 
         // Add to state

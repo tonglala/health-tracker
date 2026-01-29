@@ -21,7 +21,8 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
+    <script src="app.js?v=6"></script>
     <style>
         #debug-console {
             display: none;
@@ -122,12 +123,26 @@
             <!-- DASHBOARD SECTION -->
             <section id="dashboard" class="section active-section">
                 <header class="top-bar">
-                    <div>
+                    <div class="header-left">
                         <h2>總覽儀表板</h2>
                         <p class="subtitle" id="current-week-display">載入中...</p>
                     </div>
-                    <div class="user-status-pill" id="bmi-status-pill">
-                        BMI 正常
+
+                    <div class="header-right">
+                        <!-- Mobile Header Auth (Inserted here) -->
+                        <div id="header-auth" class="header-auth">
+                            <button id="btn-header-login" class="btn-icon-text">
+                                <span class="material-icons-round">login</span>
+                                <span class="btn-text">登入</span>
+                            </button>
+                            <div id="header-user-info" style="display: none;">
+                                <img id="header-user-photo" src="" alt="User" class="user-photo-sm">
+                            </div>
+                        </div>
+
+                        <div class="user-status-pill" id="bmi-status-pill">
+                            BMI 正常
+                        </div>
                     </div>
                 </header>
 
@@ -283,6 +298,22 @@
                     <h2>個人設定</h2>
                 </header>
                 <div class="card settings-card">
+                    <!-- Mobile Login Section (Visible only on mobile via CSS) -->
+                    <div id="mobile-auth-section" class="mobile-only-auth">
+                        <h3>帳號設定</h3>
+                        <div id="mobile-user-info" style="display: none;">
+                            <div class="user-chip">
+                                <img id="mobile-user-photo" src="" alt="User">
+                                <span id="mobile-user-name">User</span>
+                            </div>
+                            <button id="btn-mobile-logout" class="btn-danger-outline">登出</button>
+                        </div>
+                        <button id="btn-mobile-login" class="btn-login-google">
+                            <span class="material-icons-round">login</span> 登入 Google 同步資料
+                        </button>
+                        <hr class="divider">
+                    </div>
+
                     <form id="profile-form">
                         <h3>基本資料</h3>
                         <p class="text-muted">這些資料用於計算 BMI 與孕期建議增重曲線。</p>

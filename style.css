@@ -217,6 +217,41 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+/* Header Auth (Mobile) */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-auth {
+    display: none;
+    /* Hidden on desktop by default */
+}
+
+.btn-icon-text {
+    background: white;
+    border: 1px solid #E9ECEF;
+    color: var(--primary-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.user-photo-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
 /* Cards */
 .cards-grid {
     display: grid;
@@ -605,6 +640,20 @@ input[type="date"] {
         gap: 10px;
     }
 
+    .header-right {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-direction: row-reverse;
+        /* Put Status on right, Login on left */
+    }
+
+    .header-auth {
+        display: block;
+        /* Show on mobile */
+    }
+
     .top-bar h2 {
         font-size: 1.5rem;
     }
@@ -644,4 +693,70 @@ input[type="date"] {
         padding: 1rem;
         /* Reduce padding on mobile */
     }
+}
+
+/* Mobile Auth Section Styling */
+.mobile-only-auth {
+    display: none;
+    /* Hidden by default on desktop */
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+    .mobile-only-auth {
+        display: block;
+        /* Show on mobile */
+    }
+}
+
+.user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    background: #F8F9FA;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+#mobile-user-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+#mobile-user-name {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.btn-login-google {
+    width: 100%;
+    background: #4285F4;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+.btn-danger-outline {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #FA5252;
+    color: #FA5252;
+    background: white;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.divider {
+    border: 0;
+    border-top: 1px solid #F1F3F5;
+    margin: 1.5rem 0;
 }

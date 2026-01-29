@@ -20,16 +20,29 @@
 
 <body>
     <div class="app-container">
-        <!-- Sidebar Navigation -->
+        <!-- Sidebar Navigation (Desktop) -->
         <nav class="sidebar">
-            <div class="brand">
-                <span class="material-icons-round logo-icon">spa</span>
-                <h1>健康管理</h1>
+            <div class="logo">
+                <h1>Healthy<span class="dot">.</span></h1>
             </div>
+
+            <!-- User Profile / Login Section -->
+            <div class="user-profile-section" id="auth-section">
+                <button id="btn-login" class="btn-login">
+                    <span class="material-icons-round">login</span> 登入 Google 同步資料
+                </button>
+                <div id="user-info" style="display: none;">
+                    <img id="user-photo" src="" alt="User" class="user-photo">
+                    <span id="user-name">User</span>
+                    <button id="btn-logout" class="btn-icon-small" title="登出"><span
+                            class="material-icons-round">logout</span></button>
+                </div>
+            </div>
+
             <ul class="nav-links">
                 <li class="nav-item active" data-section="dashboard">
                     <span class="material-icons-round">dashboard</span>
-                    <span>儀表板</span>
+                    <span>總覽</span>
                 </li>
                 <li class="nav-item" data-section="weight">
                     <span class="material-icons-round">monitor_weight</span>
@@ -265,7 +278,7 @@
             </div>
         </nav>
     </div>
-    <script src="app.js?v=3"></script>
+    <script type="module" src="app.js?v=4"></script>
 </body>
 
 </html>

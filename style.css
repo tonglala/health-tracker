@@ -42,15 +42,72 @@ body {
 
 /* Sidebar */
 .sidebar {
-    width: 260px;
-    background: var(--card-bg);
-    padding: 2rem;
+    width: 250px;
+    background: white;
+    padding: 2rem 1.5rem;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
+    gap: 2rem;
+    border-right: 1px solid #F1F3F5;
     height: 100%;
     z-index: 10;
+}
+
+.logo h1 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-dark);
+}
+
+/* User Profile Section */
+.user-profile-section {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #F1F3F5;
+}
+
+.btn-login {
+    width: 100%;
+    background: #4285F4;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.btn-login:hover {
+    background: #3367D6;
+}
+
+#user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-photo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.btn-icon-small {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.btn-icon-small:hover {
+    color: var(--primary);
 }
 
 .brand {

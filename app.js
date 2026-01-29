@@ -22,17 +22,111 @@ const GUIDELINES = {
     obese: { total: [5, 9], weekly: [0.17, 0.27] }
 };
 
-// Initialize
+// --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('App Loaded v3 - With Delete Buttons');
-    loadData();
+    // Check local storage first for immediate render
+    loadLocalData();
+
+    // Setup UI
     setupNavigation();
     setupForms();
     setupCalculations();
+    setupAuthListeners();
+
+    // Initial Render
     renderAll();
 });
 
-function loadData() {
+// --- Auth & Sync Logic ---
+function setupAuthListeners() {
+    const btnLogin = document.getElementById('btn-login');
+    const btnLogout = document.getElementById('btn-logout');
+
+    // Login
+    btnLogin.addEventListener('click', () => {
+        signInWithPopup(auth, provider)
+            .catch((error) => {
+                console.error("Login failed", error);
+                alert("登入失敗: " + error.message);
+            });
+    });
+
+    // Logout
+    btnLogout.addEventListener('click', () => {
+        signOut(auth).then(() => {
+            alert("已登出");
+            location.reload(); // Reload to clear state
+        });
+    });
+
+    // Auth State Change
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // User is signed in
+            currentUser = user;
+            updateAuthUI(user);
+            await syncData(); // Sync: Cloud <-> Local
+        } else {
+            // User is signed out
+            currentUser = null;
+            updateAuthUI(null);
+        }
+    });
+}
+
+function updateAuthUI(user) {
+    const loginBtn = document.getElementById('btn-login');
+    const userInfo = document.getElementById('user-info');
+    const userPhoto = document.getElementById('user-photo');
+    const userName = document.getElementById('user-name');
+
+    if (user) {
+        loginBtn.style.display = 'none';
+        userInfo.style.display = 'flex';
+        userPhoto.src = user.photoURL;
+        userName.textContent = user.displayName;
+    } else {
+        loginBtn.style.display = 'flex';
+        userInfo.style.display = 'none';
+    }
+}
+
+async function syncData() {
+    if (!currentUser) return;
+
+    const userDocRef = doc(db, "users", currentUser.uid);
+
+    try {
+        const docSnap = await getDoc(userDocRef);
+
+        if (docSnap.exists()) {
+            // Cloud data exists -> Pull from Cloud
+            console.log("Found cloud data, downloading...");
+            state = docSnap.data();
+            saveLocalData(); // Update local cache
+            renderAll();
+            alert(`歡迎回來 ${currentUser.displayName}！資料已同步。`);
+        } else {
+            // No cloud data -> Check if we have local data to upload
+            console.log("No cloud data, checking local...");
+            const localData = localStorage.getItem(STORAGE_KEY);
+            if (localData) {
+                // Upload local data to cloud
+                await setDoc(userDocRef, JSON.parse(localData));
+                alert("您的本地資料已成功備份到雲端！");
+            } else {
+                // New user completely
+                await setDoc(userDocRef, state);
+            }
+        }
+    } catch (e) {
+        console.error("Sync error:", e);
+        alert("資料同步發生錯誤，請檢查網路連線。");
+    }
+}
+
+// --- Data Persistence ---
+function loadLocalData() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
         state = JSON.parse(saved);
@@ -65,19 +159,32 @@ function loadData() {
             type: 'home',
             note: '早上空腹量'
         });
-
-        saveData();
     }
 
     // Fill Settings Form
-    document.getElementById('profile-height').value = state.profile.height;
-    document.getElementById('profile-start-weight').value = state.profile.startWeight;
-    document.getElementById('profile-date-point').value = state.profile.lmpDate;
+    if (state.profile.height) document.getElementById('profile-height').value = state.profile.height;
+    if (state.profile.startWeight) document.getElementById('profile-start-weight').value = state.profile.startWeight;
+    if (state.profile.lmpDate) document.getElementById('profile-date-point').value = state.profile.lmpDate;
 }
 
-function saveData() {
+function saveLocalData() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+async function saveData() {
+    // 1. Save to Local Storage (Instant)
+    saveLocalData();
     renderAll();
+
+    // 2. Save to Cloud (Async)
+    if (currentUser) {
+        try {
+            await setDoc(doc(db, "users", currentUser.uid), state);
+            console.log("Cloud save success");
+        } catch (e) {
+            console.error("Cloud save failed", e);
+        }
+    }
 }
 
 function setupNavigation() {
@@ -138,15 +245,24 @@ function setupForms() {
         e.preventDefault();
         const weight = parseFloat(document.getElementById('weight-value').value);
         const date = document.getElementById('weight-date').value;
-        const type = document.querySelector('input[name="weight-type"]:checked').value;
+        const type = document.querySelector('input[name="w-type"]:checked').value;
         const note = document.getElementById('weight-note').value;
 
-        state.weights.push({ id: Date.now(), date, weight, type, note });
-        // Sort by date
-        state.weights.sort((a, b) => new Date(a.date) - new Date(b.date));
+        // Add to state
+        state.weights.push({
+            id: Date.now(),
+            date,
+            weight,
+            type,
+            note
+        });
 
+        state.weights.sort((a, b) => new Date(a.date) - new Date(b.date));
         saveData();
-        e.target.reset();
+
+        // Reset
+        document.getElementById('weight-value').value = '';
+        document.getElementById('weight-note').value = '';
         document.getElementById('type-home').checked = true;
         // Default date to today
         document.getElementById('weight-date').valueAsDate = new Date();
@@ -187,7 +303,7 @@ function setupForms() {
         window.open(url, '_blank');
     });
 
-    // Profile Form
+    // Profile Settings Form
     document.getElementById('profile-form').addEventListener('submit', (e) => {
         e.preventDefault();
         state.profile.height = parseFloat(document.getElementById('profile-height').value);
@@ -353,21 +469,29 @@ function renderLists() {
         fList.appendChild(li);
     });
 
-    const total = todayMeals.reduce((a, b) => a + b.cals, 0);
-    document.getElementById('food-list-total').textContent = total;
+    // Update Daily total
+    const dailyTotal = todayMeals.reduce((acc, m) => acc + m.cals, 0);
+    document.getElementById('food-list-total').textContent = dailyTotal;
 }
 
+// Global function for onclick
 window.deleteFood = (id) => {
     if (confirm('確定要刪除這筆紀錄嗎？')) {
         state.meals = state.meals.filter(m => m.id !== id);
-        saveData();
-        renderAll();
+        saveData(); // Will sync to cloud if logged in
+        renderLists(); // Re-render list
+        renderDashboard(); // Update daily total
     }
-};
+}
 
-function translateMeal(m) {
-    const map = { breakfast: '早餐', lunch: '午餐', dinner: '晚餐', snack: '點心' };
-    return map[m] || m;
+function translateMeal(type) {
+    const map = {
+        'breakfast': '早餐',
+        'lunch': '午餐',
+        'dinner': '晚餐',
+        'snack': '點心/宵夜'
+    };
+    return map[type] || type;
 }
 
 let chartInstance = null;
@@ -375,7 +499,9 @@ let chartInstance = null;
 function renderChart() {
     const ctx = document.getElementById('weightChart').getContext('2d');
 
-    if (chartInstance) chartInstance.destroy();
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
 
     // Generate Ideal Curves (Min and Max)
     // 0-13 weeks: minimal gain (assume linear to 1kg)
@@ -569,6 +695,9 @@ function analyzeProgress(points) {
 window.resetAllData = () => {
     if (confirm('確定要刪除所有紀錄並重置嗎？')) {
         localStorage.removeItem(STORAGE_KEY);
+        if (currentUser) {
+            setDoc(doc(db, "users", currentUser.uid), {}); // Clear cloud data too
+        }
         location.reload();
     }
 }

@@ -167,6 +167,12 @@ function setupForms() {
         document.getElementById('food-name').value = '';
         document.getElementById('food-calories').value = '';
         alert('飲食紀錄已加入');
+        renderAll(); // Re-render to show new item
+    });
+
+    // Re-render list when date changes
+    document.getElementById('food-date').addEventListener('change', () => {
+        renderLists();
     });
 
     // Smart Search
@@ -316,8 +322,18 @@ function renderLists() {
     // Food List
     const fList = document.getElementById('food-history-list');
     fList.innerHTML = '';
-    const todayStr = new Date().toISOString().split('T')[0];
-    const todayMeals = state.meals.filter(m => m.date === todayStr);
+
+    // Get date from input or default to today
+    const dateInput = document.getElementById('food-date');
+    const selectedDate = dateInput && dateInput.value ? dateInput.value : new Date().toISOString().split('T')[0];
+
+    // Update header to show selected date
+    const listHeader = document.querySelector('.history-list h3');
+    if (listHeader) {
+        listHeader.textContent = `${selectedDate} 飲食清單`;
+    }
+
+    const todayMeals = state.meals.filter(m => m.date === selectedDate);
 
     todayMeals.forEach(m => {
         const li = document.createElement('li');

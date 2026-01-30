@@ -506,11 +506,16 @@ function renderLists() {
         li.className = 'list-item';
         const weeks = getWeeksPregnant(w.date);
         li.innerHTML = `
-            <div class="item-left">
-                <strong>${w.date} (${weeks}週) <span class="tag ${w.type}">${w.type === 'home' ? '家 / 空腹' : '診所 / 飯後'}</span></strong>
-                <small>${w.note || ''}</small>
+            <div class="item-info">
+                <div class="item-left">
+                    <strong>${w.date} (${weeks}週) <span class="tag ${w.type}">${w.type === 'home' ? '家 / 空腹' : '診所 / 飯後'}</span></strong>
+                    <small>${w.note || ''}</small>
+                </div>
+                <span class="item-right">${w.weight} kg</span>
             </div>
-            <span class="item-right">${w.weight} kg</span>
+            <button class="btn-delete" onclick="deleteWeight(${w.id})" aria-label="刪除">
+                <span class="material-icons-round" style="font-size: 18px;">delete</span>
+            </button>
         `;
         wList.appendChild(li);
     });
@@ -561,6 +566,15 @@ window.deleteFood = (id) => {
         saveData(); // Will sync to cloud if logged in
         renderLists(); // Re-render list
         renderDashboard(); // Update daily total
+    }
+}
+
+window.deleteWeight = (id) => {
+    if (confirm('確定要刪除這筆體重紀錄嗎？')) {
+        state.weights = state.weights.filter(w => w.id !== id);
+        saveData();
+        renderLists();
+        renderDashboard(); // Update chart and stats
     }
 }
 
